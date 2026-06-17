@@ -38,10 +38,10 @@ pH (Кислотность): Определяет, насколько комфо
 База данных: SQLite 3 (все справочники, нормы и доступные удобрения хранятся локально в файле agrochem.db)
 
 📦 Установка и запуск
-* 1. Клонирование репозитория
+1. Клонирование репозитория
 
-git clone https://github.com/your-username/agrochem-calculator.git
-cd agrochem-calculator
+* git clone https://github.com/your-username/agrochem-calculator.git
+* cd agrochem-calculator
 
 2. Запуск приложения
 * Программа использует только стандартные библиотеки Python, поэтому установка дополнительных библиотек не требуется. База данных инициализируется автоматически при первом запуске
