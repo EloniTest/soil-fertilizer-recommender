@@ -28,3 +28,18 @@ def determine_deficit_level(fact_value, opt_min):
         # strong deficiency (deviation more than 45%)
         return 3 
     
+def calculate_fertilizer_dose(element, deficit_level, crop_coefficient):
+    base_dose_dv = BASE_DOSES[element][deficit_level - 1]
+    final_dose_dv = base_dose_dv * crop_coefficient
+    fert_name, content_pct, method, notes = get_fertilizer_by_elem(element)
+    dose_physical = round((final_dose_dv / content_pct) * 100, 1)
+    return {
+        "element": element,
+        "status": DEFICIT_LEVELS[deficit_level],
+        "fert_name": fert_name,
+        "dose_phys": dose_physical,
+        "method": method,
+        "notes": notes
+    }
+
+def calculate_recommendation(crop_name, fact_n, fact_p, fact_k, fact_ph):
