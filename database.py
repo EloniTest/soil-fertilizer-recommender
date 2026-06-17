@@ -8,6 +8,47 @@ def get_Connection():
 
 def init_db():
     # Creating tables and filling directories if there is no database
+    conn = get_Connection()
+    cur = conn.cursor()
+
+    # creating table
+    cur.execute("""CREATE TABLE IF NOT EXISTS crops (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, display_name TEXT)""")
+    # creating table
+    cur.execute("""CREATE TABLE IF NOT EXISTS crop_norms 
+        (
+        crop_name TEXT PRIMARY KEY REFERENCES crops(name),
+        n_min REAL, n_max REAL, p_min REAL, p_max REAL, k_min REAL, k_max REAL,
+        ph_min REAL, ph_max REAL, c_n REAL, c_p REAL, c_k REAL
+        )"""
+    )
+    
+    # creating table
+    cur.execute("""CREATE TABLE IF NOT EXISTS fertilizers 
+        (element TEXT, name TEXT, content_pct REAL, method TEXT, notes TEXT)""")
+
+    # inserting culture
+    crops = [("wheat", "Пшеница озимая"), ("potato", "Картошель"), ("tomato", "Томат")]
+    cur.executemany("INSERT OR IGNORE INTO crops (name, display_name) VALUES (?,?)", crops)
+
+    # inserting values
+    norms = [
+        ("wheat", 60, 90, 50, 80, 130, 180, 6.0, 7.5, 1.0, 0.9, 0.85),
+        ("potato", 70, 110, 60, 90, 150, 220, 5.5, 6.5, 0.9, 1.2, 1.40),
+        ("tomato", 80, 120, 70, 100, 160, 240, 6.2, 6.8, 1.1, 1.2, 1.50)
+    ]
+    cur.executemany("INSERT OR IGNORE INTO crop_norms VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", norms)
+
+    # filling the table with data
+    fertilizers = [
+        ("N", "Аммиачная селитра", 34.0, "основное (весна)", "Аммонийно-нитратный азот"),
+        ("P", "Двойной суперфосфат", 45.0, "основное (осень)", "Требует глубокой заделки"),
+        ("K", "Сульфат калия", 50.0, "предпосевное", "Бесхлорное, идеально для овощей"),
+        ("lime", "Известь молотая", 100.0, "основное под вспашку", "Для нейтрализации кислотности")
+    ]
+    cur.executemany("INSERT OR IGNORE INTO fertilizers VALUES (?,?,?,?,?)", fertilizers)
+    conn.commit()
+    conn.close()
 
 
 def get_crops_list():
