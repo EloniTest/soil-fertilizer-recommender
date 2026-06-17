@@ -1,7 +1,8 @@
 import sqlite3
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'database.db')
+
+DB_PATH = os.path.join(os.path.dirname(__file__), "agrochem.db")
 
 def get_Connection():
     return sqlite3.connect(DB_PATH)
@@ -9,13 +10,13 @@ def get_Connection():
 def init_db():
     # Creating tables and filling directories if there is no database
     conn = get_Connection()
-    cur = conn.cursor()
+    sql = conn.cursor()
 
     # creating table
-    cur.execute("""CREATE TABLE IF NOT EXISTS crops (
+    sql.execute("""CREATE TABLE IF NOT EXISTS crops (
         id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, display_name TEXT)""")
     # creating table
-    cur.execute("""CREATE TABLE IF NOT EXISTS crop_norms 
+    sql.execute("""CREATE TABLE IF NOT EXISTS crop_norms 
         (
         crop_name TEXT PRIMARY KEY REFERENCES crops(name),
         n_min REAL, n_max REAL, p_min REAL, p_max REAL, k_min REAL, k_max REAL,
@@ -24,12 +25,14 @@ def init_db():
     )
     
     # creating table
-    cur.execute("""CREATE TABLE IF NOT EXISTS fertilizers 
+    sql.execute("""CREATE TABLE IF NOT EXISTS fertilizers 
         (element TEXT, name TEXT, content_pct REAL, method TEXT, notes TEXT)""")
+
+
 
     # inserting culture
     crops = [("wheat", "Пшеница озимая"), ("potato", "Картошель"), ("tomato", "Томат")]
-    cur.executemany("INSERT OR IGNORE INTO crops (name, display_name) VALUES (?,?)", crops)
+    sql.executemany("INSERT OR IGNORE INTO crops (name, display_name) VALUES (?,?)", crops)
 
     # inserting values
     norms = [
@@ -37,7 +40,9 @@ def init_db():
         ("potato", 70, 110, 60, 90, 150, 220, 5.5, 6.5, 0.9, 1.2, 1.40),
         ("tomato", 80, 120, 70, 100, 160, 240, 6.2, 6.8, 1.1, 1.2, 1.50)
     ]
-    cur.executemany("INSERT OR IGNORE INTO crop_norms VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", norms)
+    sql.executemany("INSERT OR IGNORE INTO crop_norms VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", norms)
+
+
 
     # filling the table with data
     fertilizers = [
@@ -46,17 +51,39 @@ def init_db():
         ("K", "Сульфат калия", 50.0, "предпосевное", "Бесхлорное, идеально для овощей"),
         ("lime", "Известь молотая", 100.0, "основное под вспашку", "Для нейтрализации кислотности")
     ]
-    cur.executemany("INSERT OR IGNORE INTO fertilizers VALUES (?,?,?,?,?)", fertilizers)
+    sql.executemany("INSERT OR IGNORE INTO fertilizers VALUES (?,?,?,?,?)", fertilizers)
+
+
+    # saving what function does
     conn.commit()
     conn.close()
 
 
 def get_crops_list():
     # Getting list of crops from database
+    conn = get_Connection()
+    sql = conn.cursor()
+    
+    sql.execute("SELECT name, display_name FROM crops ORDER BY display_name")
+    res = sql.fetchall()
+    conn.close()
+    return res
 
 def get_crop_data(crop_name):
     # Getting data for crop from database
+    conn = get_Connection()
+    sql = conn.cursor()
+
+    sql.execute("SELECT * FROM crop_norms WHERE crop_name = ?", (crop_name))
+    res = sql.fetchall()
+    conn.close()
+    return res
 
 def get_fertilizer_by_elem(element):
     # Getting fertilizer by element from database
-
+    conn = get_Connection()
+    sql = conn.cursor()
+    sql.execute("SELECT name, content_pct, method, notes FROM fertilizers WHERE element = ?", (element,))
+    res = sql.fetchone()
+    conn.close()
+    return res

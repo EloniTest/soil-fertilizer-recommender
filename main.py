@@ -5,5 +5,8 @@ def main():
     init_db()
 
     print("=" * 45)
-    print("  Подбор удобрений по анализу почвы (SQLite)")
+    print("Подбор удобрений по анализу почвы")
     print("=" * 45)
+
+    crops = get_crops_list()
+    print("\nДоступные культуры:")
