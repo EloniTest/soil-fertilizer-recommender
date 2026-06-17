@@ -80,8 +80,8 @@ def get_crop_data(crop_name):
     conn = get_Connection()
     sql = conn.cursor()
 
-    sql.execute("SELECT * FROM crop_norms WHERE crop_name = ?", (crop_name))
-    res = sql.fetchall()
+    sql.execute("SELECT * FROM crop_norms WHERE crop_name = ?", (crop_name,))
+    res = sql.fetchone()
     conn.close()
     return res
 

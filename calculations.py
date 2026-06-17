@@ -1,6 +1,5 @@
 from database import get_crop_data, get_fertilizer_by_elem
 
-
 # Dictionaries and reference books for interpreting calculations
 DEFICIT_LEVELS = {
     1: "небольшой дефицит",
