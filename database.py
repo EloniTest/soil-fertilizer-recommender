@@ -12,26 +12,32 @@ def init_db():
     conn = get_Connection()
     sql = conn.cursor()
 
-    # creating table
+    # creating table (crops)
     sql.execute("""CREATE TABLE IF NOT EXISTS crops (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, display_name TEXT)""")
-    # creating table
-    sql.execute("""CREATE TABLE IF NOT EXISTS crop_norms 
-        (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        name TEXT UNIQUE, 
+        display_name TEXT)""")
+    # creating table (crop norms)
+    sql.execute("""CREATE TABLE IF NOT EXISTS crop_norms (
         crop_name TEXT PRIMARY KEY REFERENCES crops(name),
-        n_min REAL, n_max REAL, p_min REAL, p_max REAL, k_min REAL, k_max REAL,
-        ph_min REAL, ph_max REAL, c_n REAL, c_p REAL, c_k REAL
-        )"""
-    )
+        n_min REAL, n_max REAL, 
+        p_min REAL, p_max REAL, 
+        k_min REAL, k_max REAL,
+        ph_min REAL, ph_max REAL, 
+        c_n REAL, c_p REAL, c_k REAL)""")
     
-    # creating table
-    sql.execute("""CREATE TABLE IF NOT EXISTS fertilizers 
-        (element TEXT, name TEXT, content_pct REAL, method TEXT, notes TEXT)""")
+    # creating table (fertilizers)
+    sql.execute("""CREATE TABLE IF NOT EXISTS fertilizers (
+        element TEXT, 
+        name TEXT, 
+        content_pct REAL, 
+        method TEXT, 
+        notes TEXT)""")
 
 
 
     # inserting culture
-    crops = [("wheat", "Пшеница озимая"), ("potato", "Картошель"), ("tomato", "Томат")]
+    crops = [("wheat", "Пшеница озимая"), ("potato", "Картофель"), ("tomato", "Томат")]
     sql.executemany("INSERT OR IGNORE INTO crops (name, display_name) VALUES (?,?)", crops)
 
     # inserting values
@@ -83,7 +89,9 @@ def get_fertilizer_by_elem(element):
     # Getting fertilizer by element from database
     conn = get_Connection()
     sql = conn.cursor()
+    
     sql.execute("SELECT name, content_pct, method, notes FROM fertilizers WHERE element = ?", (element,))
     res = sql.fetchone()
+    
     conn.close()
     return res

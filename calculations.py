@@ -1,19 +1,30 @@
 from database import get_crop_data, get_fertilizer_by_elem
 
 
-LEVEL_LABELS = {1: "небольшой дефицит", 2: "умеренный дефицит", 3: "острый дефицит"}
-BASE_DOSES = {"N": [40, 70, 120], "P": [45, 80, 130], "K": [50, 90, 140]}
+# Dictionaries and reference books for interpreting calculations
+DEFICIT_LEVELS = {
+    1: "небольшой дефицит",
+    2: "умеренный дефицит",
+    3: "острый дефицит"
+}
 
-def calculate_recommendation(crop_name, n, p, k, ph):
-    # Extracting norms from SQLite
-    raw_data = get_crop_data(crop_name)
-    if not raw_data:
-        return 0
-        
-    _, n_min, n_max, p_min, p_max, k_min, k_max, ph_min, ph_max, c_n, c_p, c_k = raw_data
+# Basic doses of pure active ingredient (кг д.в/га) depending on the level of deficiency [1, 2, 3]
+BASE_DOSES = {
+    "N": [40, 70, 120],
+    "P": [45, 80, 130],
+    "K": [50, 90, 140]
+}
+# determination of the level of deficit
+def determine_deficit_level(fact_value, opt_min):
+
+    gap_percentage = ((opt_min - fact_value) / opt_min) * 100
+    if gap_percentage <= 20.0:
+        # Minor deficit (up to 20%)
+        return 1
+    elif gap_percentage <= 45.0:
+        # Moderate deficiency (deviation from 20% to 45%)
+        return 2
+    else:
+        # strong deficiency (deviation more than 45%)
+        return 3 
     
-    result = {
-        "norms": (n_min, n_max, p_min, p_max, k_min, k_max, ph_min, ph_max),
-        "fertilizers": [],
-        "lime": None
-    }
